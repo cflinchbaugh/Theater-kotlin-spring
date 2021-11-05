@@ -9,3 +9,4 @@ class TheaterApplication
 fun main(args: Array<String>) {
 	runApplication<TheaterApplication>(*args)
 }
+/**/
