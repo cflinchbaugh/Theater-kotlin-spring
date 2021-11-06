@@ -1,5 +1,6 @@
 package com.virtualprogrammers.theater.control
 
+import com.virtualprogrammers.theater.data.SeatRepository
 import com.virtualprogrammers.theater.services.BookingService
 import com.virtualprogrammers.theater.services.TheaterService
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,17 +18,32 @@ class MainController {
     @Autowired
     lateinit var bookingService: BookingService
 
+    @Autowired
+    lateinit var seatRepository: SeatRepository
+
     @RequestMapping("")
     fun homePage() : ModelAndView =
         ModelAndView("seatBooking", "bean", CheckAvailabilityBackingBean())
 
     @RequestMapping(value=["checkAvailability"], method=[RequestMethod.POST])
     fun checkAvailability(bean : CheckAvailabilityBackingBean) : ModelAndView {
-        val selectedSeat = theaterService.find(bean.selectedSeatNum, bean.selectedSeatRow)
+        val selectedSeat = theaterService.find(bean.selectedSeatRow, bean.selectedSeatNum)
         val isAvailable = bookingService.isSeatFree(selectedSeat)
-        bean.result = "Seat ${selectedSeat.row} - ${selectedSeat.num} (${selectedSeat.description}) is " + if (isAvailable) "available for $${selectedSeat.price}" else "unavailable"
+        bean.result = "Seat ${selectedSeat.seatRow} - ${selectedSeat.seatNum} (${selectedSeat.description}) is " + if (isAvailable) "available for $${selectedSeat.price}" else "unavailable"
 
         return ModelAndView("seatBooking", "bean", bean)
+    }
+
+    @RequestMapping("bootstrap")
+    fun createInitialData() : ModelAndView {
+        val seats = theaterService.seats
+        for (seat in seats) {
+            println("${seat.id} ${seat.seatRow}-${seat.seatNum} ${seat.description} ${seat.price}")
+        }
+
+        seatRepository.saveAll(seats)
+
+        return homePage()
     }
 
 }

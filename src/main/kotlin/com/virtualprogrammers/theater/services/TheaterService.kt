@@ -10,22 +10,22 @@ class TheaterService {
 
     constructor() {
 
-        fun getPrice(row: Int, num: Int) : BigDecimal {
+        fun getPrice(seatRow: Int, seatNum: Int) : BigDecimal {
             return when {
-                row >=14 -> BigDecimal(14.50)
-                num <=3 || num >= 34 -> BigDecimal(16.50)
-                row == 1 -> BigDecimal(21)
+                seatRow >=14 -> BigDecimal(14.50)
+                seatNum <=3 || seatNum >= 34 -> BigDecimal(16.50)
+                seatRow == 1 -> BigDecimal(21)
                 else -> BigDecimal(18)
             }
 
         }
 
-        fun getDescription(row: Int, num: Int) : String {
+        fun getDescription(seatRow: Int, seatNum: Int) : String {
             return when {
-                row == 15 -> "Back Row"
-                row == 14 -> "Cheaper Seat"
-                num <=3 || num >= 34 -> "Restricted View"
-                row <=2 -> "Best View"
+                seatRow == 15 -> "Back Row"
+                seatRow == 14 -> "Cheaper Seat"
+                seatNum <=3 || seatNum >= 34 -> "Restricted View"
+                seatRow <=2 -> "Best View"
                 else -> "Standard Seat"
             }
         }
@@ -34,9 +34,9 @@ class TheaterService {
             (convertThisInt + 64).toChar() //Magic number to get to cap letters in ASCII
 
 
-        for (row in 1..15) {
-            for (num in 1..36) {
-                hiddenSeats.add(Seat(convertIntToChar(row), num, getPrice(row,num), getDescription(row,num) ))
+        for (seatRow in 1..15) {
+            for (seatNum in 1..36) {
+                hiddenSeats.add(Seat(0, convertIntToChar(seatRow), seatNum, getPrice(seatRow,seatNum), getDescription(seatRow,seatNum) ))
             }
         }
     }
@@ -44,9 +44,9 @@ class TheaterService {
 	val seats
     get() = hiddenSeats.toList()
 
-    fun find(num: Int, row: Char) : Seat {
+    fun find(seatRow: Char, seatNum: Int) : Seat {
         return seats.first {
-            it.row == row && it.num == num
+            it.seatRow == seatRow && it.seatNum == seatNum
         }
 
     }
