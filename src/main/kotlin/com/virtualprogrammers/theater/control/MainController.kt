@@ -34,17 +34,18 @@ class MainController {
         return ModelAndView("seatBooking", "bean", bean)
     }
 
-    @RequestMapping("bootstrap")
-    fun createInitialData() : ModelAndView {
-        val seats = theaterService.seats
-        for (seat in seats) {
-            println("${seat.id} ${seat.seatRow}-${seat.seatNum} ${seat.description} ${seat.price}")
-        }
-
-        seatRepository.saveAll(seats)
-
-        return homePage()
-    }
+//    Should only be run once to populate DB, preserved here purely for reference
+//    @RequestMapping("bootstrap")
+//    fun createInitialData() : ModelAndView {
+//        val seats = theaterService.seats
+//        for (seat in seats) {
+//            println("${seat.id} ${seat.seatRow}-${seat.seatNum} ${seat.description} ${seat.price}")
+//        }
+//
+//        seatRepository.saveAll(seats)
+//
+//        return homePage()
+//    }
 
 }
 
