@@ -7,6 +7,7 @@ import com.virtualprogrammers.theater.domain.Performance
 import com.virtualprogrammers.theater.domain.Seat
 import com.virtualprogrammers.theater.services.BookingService
 import com.virtualprogrammers.theater.services.TheaterService
+import org.hibernate.annotations.Check
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
@@ -30,23 +31,48 @@ class MainController {
 
     @RequestMapping("")
     fun homePage() : ModelAndView {
-        val model = mapOf("bean" to CheckAvailabilityBackingBean(),
-            "performances" to performanceRepository.findAll(),
-            "seatNums" to 1..36,
-            "seatRows" to 'A'..'O'
-        )
+        val bean = CheckAvailabilityBackingBean() //instantiate the bean here
+        val model = generateModel(bean)
 
         return ModelAndView("seatBooking", model)
     }
 
     @RequestMapping(value=["checkAvailability"], method=[RequestMethod.POST])
     fun checkAvailability(bean : CheckAvailabilityBackingBean) : ModelAndView {
-        val selectedSeat = theaterService.find(bean.selectedSeatRow, bean.selectedSeatNum)
-        val isAvailable = bookingService.isSeatFree(selectedSeat)
-       // bean.result = "Seat ${selectedSeat.seatRow} - ${selectedSeat.seatNum} (${selectedSeat.description}) is " + if (isAvailable) "available for $${selectedSeat.price}" else "unavailable"
+        val selectedSeat = bookingService.findSeat(bean.selectedSeatRow, bean.selectedSeatNum)!! // !! because fields are selected via dropdown
+        val selectedPerformance = performanceRepository.findById(bean.selectedPerformance!!).get() // !! and .get() because fields are selected via dropdown
+        bean.seat = selectedSeat
+        bean.performance = selectedPerformance
 
-        return ModelAndView("seatBooking", "bean", bean)
+        val isAvailable = bookingService.isSeatFree(selectedSeat, selectedPerformance)
+
+        if (!isAvailable) {
+            bean.booking = bookingService.findBooking(selectedSeat, selectedPerformance)
+        }
+        bean.available = isAvailable
+
+        val model = generateModel(bean) //Use the existing bean to persist dropdown options
+
+        return ModelAndView("seatBooking", model)
     }
+
+    fun generateModel(bean: CheckAvailabilityBackingBean ): Map<String, Any> {
+        return mapOf(
+            "bean" to bean,
+            "performances" to performanceRepository.findAll(),
+            "seatNums" to 1..36,
+            "seatRows" to 'A'..'O'
+        )
+    }
+
+    @RequestMapping(value=["booking"], method=[RequestMethod.POST])
+    fun bookSeat(bean: CheckAvailabilityBackingBean) : ModelAndView {
+        val booking = bookingService.reserveSeat(bean.seat!!, bean.performance!!, bean.customerName)
+
+        return ModelAndView("bookingConfirmed", "booking", booking)
+
+    }
+
 
 //    Should only be run once to populate DB, preserved here purely for reference
 //    @RequestMapping("bootstrap")
