@@ -1,6 +1,8 @@
 Theater Booking System Architecture 
-
-
+-Renders seat & row selectors with theater productions
+-Seats have prices based on location
+-Checks a DB to see if they are available
+-Available seats prompt for a name and updat the DB accordingly
 
 Instructions
     Run application via IntelliJ
